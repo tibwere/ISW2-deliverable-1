@@ -113,7 +113,7 @@ public class PCCBuilder {
 	
 	public void createChart() throws IOException {
 
-		File chart = new File(String.format("%s-pcc-data.csv", this.projectName));
+		File chart = new File(String.format("%s_PCC_data.csv", this.projectName));
 		
 		Map<String, Integer> rawData = this.getRawValuesFromPCC();
 		FileWriter csvWriter = new FileWriter(chart,false);
