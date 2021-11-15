@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.gson.JsonArray;
@@ -21,7 +22,7 @@ import okhttp3.Response;
 
 public class PCCBuilder {
 	
-	private static Logger LOG = Logger.getLogger("ISW2-deliverable-1");
+	private static Logger logger = Logger.getLogger("ISW2-deliverable-1");
 
 	private String projectName;
 	private String issueType;
@@ -39,18 +40,20 @@ public class PCCBuilder {
 	}
 
 	private String getAPIURL(int startIndex, int maxResults) {
+		
+		String conjunction = " AND ";
 
 		StringBuilder urlBuilder = new StringBuilder("https://issues.apache.org/jira/rest/api/2/search?jql=")
-				.append("project=").append(this.projectName).append(" AND ")
-				.append("issueType=").append(this.issueType).append(" AND ")
-				.append("resolution=").append(this.resolution).append(" AND ")
+				.append("project=").append(this.projectName).append(conjunction)
+				.append("issueType=").append(this.issueType).append(conjunction)
+				.append("resolution=").append(this.resolution).append(conjunction)
 				.append("status in (").append(this.status).append(")")
 				.append("&fields=").append(this.fields)
 				.append("&startAt=").append(startIndex)
 				.append("&maxResults=").append(maxResults);
 				
 		String url = urlBuilder.toString().replace(" ", "%20").replace("\"", "%22");
-		LOG.info("URL: " + url);
+		logger.log(Level.INFO, "URL: {0}", url);
 		return url;
 	}
 
@@ -61,7 +64,7 @@ public class PCCBuilder {
 				.build();
 		
 		Response res = client.newCall(req).execute();
-		LOG.info("Retrieved results from JIRA");
+		logger.log(Level.INFO, "Retrieved results from JIRA");
 		return res.body().string();
 	}
 	
@@ -82,7 +85,7 @@ public class PCCBuilder {
 				String resolutionDate = jsonIssue.get("fields")
 						.getAsJsonObject().get("resolutiondate")
 						.getAsString();	
-				LOG.info("Added new date: " + resolutionDate);
+				logger.log(Level.INFO, "Added new date: {0}", resolutionDate);
 				dates.add(resolutionDate);
 			}
 		} while(start<total);
@@ -100,10 +103,10 @@ public class PCCBuilder {
 			
 			if (points.containsKey(key)) {
 				int newCounter = points.get(key) + 1;
-				LOG.info(String.format("Updated %s (new counter %d)", key, newCounter));
+				logger.log(Level.INFO, "Updated {0} (new counter {1})", new Object[] {key, newCounter});
 				points.put(key, newCounter);
 			} else {
-				LOG.info(String.format("%s inserted", key));
+				logger.log(Level.INFO, "{} inserted", key);
 				points.put(key, 1);
 			}
 		}
@@ -120,10 +123,13 @@ public class PCCBuilder {
 		
 		/* Header of csv */
 		csvWriter.append("Date,Number of tickets\n");
-		for (String key : rawData.keySet()) {
-			LOG.info(String.format("Writing \"%s,%s\" on file", key, rawData.get(key)));
-			csvWriter.append(String.format("%s,%s\n", key, rawData.get(key)));
+		for (Map.Entry<String, Integer> entry : rawData.entrySet()) {
+			String key = entry.getKey();
+			int value = entry.getValue();
+			logger.log(Level.INFO, "Writing \"{0},{1}\" on file", new Object[] {key, value});
+			csvWriter.append(String.format("%s,%s\n", key, value));
 		}
+
 		
 		csvWriter.close();
 	}
