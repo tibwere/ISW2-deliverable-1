@@ -117,23 +117,20 @@ public class PCCBuilder {
 	public void createChart() throws IOException {
 
 		File chart = new File(String.format("%s_PCC_data.csv", this.projectName));
-		
+
 		Map<String, Integer> rawData = this.getRawValuesFromPCC();
-		FileWriter csvWriter = new FileWriter(chart,false);
-		
-		/* Header of csv */
-		csvWriter.append("Date,Number of tickets\n");
-		for (Map.Entry<String, Integer> entry : rawData.entrySet()) {
-			String key = entry.getKey();
-			int value = entry.getValue();
-			logger.log(Level.INFO, "Writing \"{0},{1}\" on file", new Object[] {key, value});
-			csvWriter.append(String.format("%s,%s\n", key, value));
-		}
+		try (FileWriter csvWriter = new FileWriter(chart, false)) {
 
-		
-		csvWriter.close();
+			/* Header of csv */
+			csvWriter.append("Date,Number of tickets\n");
+			for (Map.Entry<String, Integer> entry : rawData.entrySet()) {
+				String key = entry.getKey();
+				int value = entry.getValue();
+				logger.log(Level.INFO, "Writing \"{0},{1}\" on file", new Object[] { key, value });
+				csvWriter.append(String.format("%s,%s%n", key, value));
+			}
+		} 
 	}
-
 
 	public static void main(String[] args) throws IOException {
 		
