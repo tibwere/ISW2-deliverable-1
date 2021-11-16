@@ -22,7 +22,7 @@ import okhttp3.Response;
 
 public class PCCBuilder {
 	
-	private static Logger logger = Logger.getLogger("ISW2-deliverable-1");
+	private static final Logger LOGGER = Logger.getLogger("ISW2-deliverable-1");
 
 	private String projectName;
 	private String issueType;
@@ -53,7 +53,7 @@ public class PCCBuilder {
 				.append("&maxResults=").append(maxResults);
 				
 		String url = urlBuilder.toString().replace(" ", "%20").replace("\"", "%22");
-		logger.log(Level.INFO, "URL: {0}", url);
+		LOGGER.log(Level.INFO, "URL: {0}", url);
 		return url;
 	}
 
@@ -64,7 +64,7 @@ public class PCCBuilder {
 				.build();
 		
 		Response res = client.newCall(req).execute();
-		logger.log(Level.INFO, "Retrieved results from JIRA");
+		LOGGER.log(Level.INFO, "Retrieved results from JIRA");
 		return res.body().string();
 	}
 	
@@ -85,7 +85,7 @@ public class PCCBuilder {
 				String resolutionDate = jsonIssue.get("fields")
 						.getAsJsonObject().get("resolutiondate")
 						.getAsString();	
-				logger.log(Level.INFO, "Added new date: {0}", resolutionDate);
+				LOGGER.log(Level.INFO, "Added new date: {0}", resolutionDate);
 				dates.add(resolutionDate);
 			}
 		} while(start<total);
@@ -103,10 +103,10 @@ public class PCCBuilder {
 			
 			if (points.containsKey(key)) {
 				int newCounter = points.get(key) + 1;
-				logger.log(Level.INFO, "Updated {0} (new counter {1})", new Object[] {key, newCounter});
+				LOGGER.log(Level.INFO, "Updated {0} (new counter {1})", new Object[] {key, newCounter});
 				points.put(key, newCounter);
 			} else {
-				logger.log(Level.INFO, "{} inserted", key);
+				LOGGER.log(Level.INFO, "{0} inserted", key);
 				points.put(key, 1);
 			}
 		}
@@ -126,7 +126,7 @@ public class PCCBuilder {
 			for (Map.Entry<String, Integer> entry : rawData.entrySet()) {
 				String key = entry.getKey();
 				int value = entry.getValue();
-				logger.log(Level.INFO, "Writing \"{0},{1}\" on file", new Object[] { key, value });
+				LOGGER.log(Level.INFO, "Writing \"{0},{1}\" on file", new Object[] { key, value });
 				csvWriter.append(String.format("%s,%s%n", key, value));
 			}
 		} 
